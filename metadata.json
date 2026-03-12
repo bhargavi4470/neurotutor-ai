@@ -1,0 +1,8 @@
+{
+  "name": "NeuroTutor AI",
+  "description": "An adaptive, AI-powered tutoring system that personalizes learning paths, tracks mastery, and assists students with multimodal inputs.",
+  "requestFramePermissions": [
+    "microphone",
+    "camera"
+  ]
+}
