@@ -3,7 +3,7 @@ import { GoogleGenAI, Type } from "@google/genai";
 import { Message } from "../types";
 import { SUBJECTS_PRIMARY, SUBJECTS_HIGH_SCHOOL, SUBJECTS_INTER_MPC } from "../constants";
 
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+const ai = new GoogleGenAI({ apiKey: "AIzaSyAYSUPS_bR09yNj6iwiZY_12BFtaqAZd80" });
 
 export const GeminiService = {
   // 1. Chat / Explain Concept
@@ -12,10 +12,11 @@ export const GeminiService = {
     history: Message[] | null,
     imageBase64: string | null,
     topic: string,
-    grade: string
+    grade: string,
+    userContext?: string
   ) => {
     let contents: any[] = [];
-    
+
     // Include chat history if provided
     if (history && history.length > 0) {
       contents = history.map(msg => ({
@@ -42,7 +43,16 @@ export const GeminiService = {
         model: imageBase64 ? 'gemini-2.5-flash-image' : 'gemini-2.5-flash',
         contents: contents,
         config: {
-          systemInstruction: `You are a helpful AI Tutor. Context: ${topic}. Explain for a ${grade} student. Keep it concise.`,
+          systemInstruction: `You are a helpful and knowledgeable AI Tutor. 
+          Your student is in ${grade}. 
+          
+          USER CONTEXT / PROGRESS:
+          ${userContext || 'No specific progress data available.'}
+
+          You must answer ANY question the user asks, whether it's about "${topic}", another subject, or general knowledge. 
+          If the query is academic, explain it clearly and simply suitable for a ${grade} student. 
+          If it is a general question (like "who is the president", "write a poem", "hello"), answer it directly and helpfuly. DO NOT refuse to answer.
+          Context focus (if relevant to query): ${topic}.`,
           temperature: 0.7,
         }
       });
@@ -137,7 +147,7 @@ export const GeminiService = {
       return JSON.parse(response.text).questions;
     } catch (e) {
       return [
-        { id: '1', question: 'Quick Review: 20/4 = ?', options: ['4','5','6','2'], correctIndex: 1, explanation: 'Basic division.' }
+        { id: '1', question: 'Quick Review: 20/4 = ?', options: ['4', '5', '6', '2'], correctIndex: 1, explanation: 'Basic division.' }
       ];
     }
   },
@@ -150,7 +160,7 @@ export const GeminiService = {
     } else {
       prompt = `Generate a standard learning path (syllabus) for ${grade} ${subject}. Return 6-8 sequential topics with short descriptions.`;
     }
-    
+
     const parts: any[] = [];
     if (fileBase64) {
       parts.push({ inlineData: { mimeType: 'image/png', data: fileBase64 } });
@@ -166,15 +176,15 @@ export const GeminiService = {
           responseSchema: {
             type: Type.OBJECT,
             properties: {
-              topics: { 
-                type: Type.ARRAY, 
-                items: { 
+              topics: {
+                type: Type.ARRAY,
+                items: {
                   type: Type.OBJECT,
                   properties: {
                     name: { type: Type.STRING },
                     description: { type: Type.STRING }
                   }
-                } 
+                }
               }
             }
           }
@@ -183,7 +193,7 @@ export const GeminiService = {
       return JSON.parse(response.text).topics;
     } catch (e) {
       console.error(e);
-      return [{name: "Basics", description: "Introduction to the subject"}, {name: "Core Concepts", description: "Fundamental principles"}]; 
+      return [{ name: "Basics", description: "Introduction to the subject" }, { name: "Core Concepts", description: "Fundamental principles" }];
     }
   },
 
@@ -196,7 +206,7 @@ export const GeminiService = {
     2. Key Points / Formulas
     3. Example Problem
     Keep it engaging and under 400 words.`;
-    
+
     const response = await ai.models.generateContent({
       model: 'gemini-2.5-flash',
       contents: prompt

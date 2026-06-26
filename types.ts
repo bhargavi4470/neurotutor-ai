@@ -1,6 +1,6 @@
 
-export type GradeLevel = 
-  | 'Class 1' | 'Class 2' | 'Class 3' | 'Class 4' | 'Class 5' 
+export type GradeLevel =
+  | 'Class 1' | 'Class 2' | 'Class 3' | 'Class 4' | 'Class 5'
   | 'Class 6' | 'Class 7' | 'Class 8' | 'Class 9' | 'Class 10';
 
 export type Stream = 'MPC' | 'BiPC' | 'CEC' | 'MEC' | 'None';
@@ -30,17 +30,18 @@ export interface User {
   id: string;
   name: string;
   email: string;
+  profilePic?: string; // Base64 encoded image
   password?: string;
   grade?: GradeLevel;
   stream?: Stream;
   // Performance map: Subject -> 'Good' | 'Moderate' | 'Weak'
-  subjectPerformance: { [subject: string]: 'Good' | 'Moderate' | 'Weak' }; 
+  subjectPerformance: { [subject: string]: 'Good' | 'Moderate' | 'Weak' };
   weakSubjects?: string[]; // Kept for backward compatibility
   mastery: { [topic: string]: number };
   streak: number;
   lastLoginDate?: number;
   badges: Badge[];
-  syllabus?: SubjectSyllabus[]; 
+  syllabus?: SubjectSyllabus[];
   isNewUser: boolean;
   preferences: {
     darkMode: boolean;
